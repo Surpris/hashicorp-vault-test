@@ -1,0 +1,23 @@
+services:
+  vault:
+    image: hashicorp/vault:latest
+    container_name: vault-server
+    ports:
+      # ホストには公開しない (サービスAからのみアクセス)
+      - "8200:8200" # デバッグ時以外はコメントアウト
+    volumes:
+      - ./vault_data:/vault/file # データ永続化用
+      - ./vault_logs:/vault/logs # 監査ログ用 (設定が必要)
+      - ./vault_config:/vault/config # 設定ファイル用 (任意)
+    # networks:
+    #   - my-secure-network
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=myroottoken # 開発用。本番では使用しない
+      - VAULT_ADDR=http://127.0.0.1:8203 # コンテナ内部でのCLIアクセス用
+      - VAULT_CONFIG_DIR=/vault/config # 設定ファイルをマウントする場合
+    cap_add:
+      - IPC_LOCK # メモリへのスワップを防ぐために推奨
+
+# networks:
+#   my-secure-network:
+#     external: true
